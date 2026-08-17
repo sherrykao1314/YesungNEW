@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  
+  <link rel="apple-touch-icon" href="IMG_8677.jpeg?v=2">
+  <link rel="icon" sizes="192x192" href="IMG_8677.jpeg?v=2">
+  
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Yesung Album&Card</title>
+  
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600;1,700&family=Montserrat:wght@400;500;600&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root { --ys-blue-grey: #a1b0bd; --ys-deep-blue: #2c445e; --glass: rgba(255, 255, 255, 0.35); --pink-magic: #ff85a2; }
+    html, body { margin: 0; padding: 0; height: 100%; width: 100%; overflow: hidden; font-family: 'Noto Sans TC', sans-serif; }
+    
+    .bg-layer { 
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+      background-image: url('IMG_8675.jpeg?v=2'); 
+      background-size: cover; background-position: center top; 
+      z-index: -1; pointer-events: none; 
+    }
+
+    /* 登入畫面樣式 */
+    #loginScreen {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(44, 68, 94, 0.85); backdrop-filter: blur(10px);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      z-index: 9999;
+    }
+    .login-box {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 30px 20px; border-radius: 20px;
+      width: 85%; max-width: 350px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+      text-align: center;
+    }
+    .login-title { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: var(--ys-deep-blue); margin-bottom: 5px; font-weight: 700;}
+    .bind-badge { display: none; background: #e8f5e9; color: #2e7d32; padding: 4px 10px; border-radius: 12px; font-size: 0.85rem; font-weight: bold; border: 1px dashed #81c784; margin: 0 auto 15px auto; width: fit-content; }
+    .login-input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 10px; font-size: 1rem; box-sizing: border-box; background: rgba(240, 245, 255, 0.5); transition: all 0.3s; }
+    .login-input:disabled { background-color: #e8f5e9; border-color: #81c784; color: #2e7d32; font-weight: 700; opacity: 0.9; }
+    .login-btn { width: 100%; padding: 12px; background: var(--ys-deep-blue); color: white; border: none; border-radius: 10px; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: 0.3s; }
+    .login-btn:active { transform: scale(0.98); }
+    #loginMsg { color: #e63946; font-size: 0.9rem; margin-top: 10px; min-height: 20px; font-weight: 600;}
+    .loader { border: 4px solid rgba(255,255,255,0.3); border-top: 4px solid var(--ys-deep-blue); border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: 10px auto; display: none; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    
+    #mainApp { display: none; height: 100%; width: 100%; }
+
+    .scroll-wrapper { 
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+      overflow-y: auto; -webkit-overflow-scrolling: touch; 
+      padding: 10px 15px 120px 15px; box-sizing: border-box; display: block; 
+    }
+    
+    header { 
+      width: 100%; max-width: 800px; margin: 0 auto 12px auto;
+      background: var(--glass); padding: 12px 16px; 
+      border-radius: 18px; backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); 
+      border: 1px solid rgba(255,255,255,0.4); box-shadow: 0 8px 32px rgba(0,0,0,0.2); 
+      box-sizing: border-box; 
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    
+    .header-top { display: flex; justify-content: space-between; align-items: center; }
+    .title-group { text-align: left; display: flex; flex-direction: column; gap: 2px; }
+    .main-title { font-family: 'Playfair Display', serif; color: white; margin: 0; display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap; text-shadow: 0 2px 6px rgba(0,0,0,0.4); }
+    .yesung-txt { font-size: 2.3rem; font-style: italic; font-weight: 700; letter-spacing: 0.5px; line-height: 1; }
+    .album-txt { font-family: 'Montserrat', sans-serif; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600; opacity: 0.95; line-height: 1; }
+    .sub-credits { font-size: 0.75rem; color: white; font-family: 'Montserrat', sans-serif; opacity: 0.9; font-weight: 500; text-shadow: 0 2px 4px rgba(0,0,0,0.4); }
+    .user-badge { background: rgba(44, 68, 94, 0.8); color: white; padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: bold; margin-bottom: 5px; align-self: flex-start; display: inline-block; }
+
+    .draw-btn { background: rgba(255,255,255,0.9); border: 1px solid var(--ys-blue-grey); border-radius: 12px; padding: 6px 12px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: 0.3s; box-shadow: 0 2px 10px rgba(0,0,0,0.1); flex-shrink: 0; text-decoration: none; }
+    .draw-btn:active { transform: scale(0.95); }
+    .draw-btn .heart-icon { font-size: 1.2rem; margin-bottom: 2px; }
+    .draw-btn .btn-txt { font-size: 10px; font-weight: bold; white-space: nowrap; color: var(--ys-deep-blue); margin-top: 2px; }
+
+    .header-bottom { display: flex; gap: 8px; width: 100%; align-items: stretch; justify-content: space-between; }
+    .top-stat-bar { flex: 0 0 36%; min-width: 0; font-size: 11px; font-weight: 700; color: var(--ys-deep-blue); background: rgba(255,255,255,0.75); padding: 8px 6px; border-radius: 12px; display: flex; align-items: center; justify-content: center; text-align: center; border: 1px solid rgba(255,255,255,0.8); box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin: 0; box-sizing: border-box; line-height: 1.4; letter-spacing: 0.5px; }
+    
+    /* 🎯 修正：公告欄樣式，加上了 display: none 預設隱藏，用 flex 來顯示 */
+    .notice-board { flex: 1; min-width: 0; padding: 8px 10px; background: rgba(255, 255, 255, 0.75); border-radius: 12px; font-size: 11px; color: var(--ys-deep-blue); font-weight: 700; border: 1px dashed rgba(44, 68, 94, 0.5); text-align: left; line-height: 1.4; margin: 0; box-sizing: border-box; word-break: break-word; display: none; align-items: center; }
+
+    .app-container { width: 100%; max-width: 800px; margin: 0 auto; background: var(--glass); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-radius: 25px; border: 1px solid rgba(255,255,255,0.4); box-shadow: 0 8px 32px rgba(0,0,0,0.2); padding: 12px 10px; box-sizing: border-box; }
+    
+    .tab-nav { display: flex; flex-wrap: nowrap; justify-content: flex-start; gap: 6px; background: rgba(255,255,255,0.65); border: 1px solid rgba(255,255,255,0.7); border-radius: 15px; padding: 6px; margin-bottom: 10px; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+    .tab-nav::-webkit-scrollbar { display: none; }
+    .tab-btn { flex: 0 0 auto; padding: 8px 12px; background: transparent; border: none; border-radius: 12px; font-size: 0.9em; color: var(--ys-deep-blue); cursor: pointer; transition: 0.3s; font-weight: 700; white-space: nowrap; }
+    .tab-btn.active { background: var(--ys-deep-blue); color: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+    .tab-btn[onclick*="wish"] { color: #c2185b; }
+    .tab-btn[onclick*="wish"].active { background: #d84b6b; color: #fff; box-shadow: 0 2px 8px rgba(216, 75, 107, 0.4); }
+    .tab-btn[onclick*="owned"] { color: #1b5e20; }
+    .tab-btn[onclick*="owned"].active { background: #2e7d32; color: #fff; box-shadow: 0 2px 8px rgba(46, 125, 50, 0.4); }
+
+    .sub-nav-container { width: 100%; overflow-x: auto; white-space: nowrap; margin-bottom: 10px; scrollbar-width: none; }
+    .sub-nav-container::-webkit-scrollbar { display: none; }
+    .sub-nav { display: inline-flex; gap: 8px; padding: 2px 5px; }
+    .sub-btn { padding: 8px 18px; background: rgba(255,255,255,0.75); border: 1px solid rgba(255,255,255,0.9); border-radius: 20px; font-size: 0.85em; color: var(--ys-deep-blue); cursor: pointer; font-weight: 700; box-shadow: 0 2px 6px rgba(0,0,0,0.05); transition: 0.2s; }
+    .sub-btn.active { background: var(--ys-deep-blue); color: #fff; border-color: var(--ys-deep-blue); box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+    
+    .album-header { font-family: 'Montserrat', sans-serif; font-size: 1.1em; font-weight: 800; text-transform: uppercase; color: var(--ys-deep-blue); margin-top: 15px; margin-bottom: 8px; text-align: center; border-bottom: 2px solid rgba(0,0,0,0.15); padding-bottom: 8px; letter-spacing: 2px; text-shadow: 0 0 8px rgba(255,255,255,0.9), 0 1px 3px rgba(255,255,255,0.9); }
+    .section-title { font-size: 1em; color: var(--ys-deep-blue); margin: 15px 0 10px 0; font-weight: 800; display: flex; align-items: center; gap: 6px; text-shadow: 0 0 8px rgba(255,255,255,0.9), 0 1px 3px rgba(255,255,255,0.9); }
+    .wish-view .section-title, .owned-view .section-title { margin-top: 5px; }
+
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(105px, 1fr)); gap: 12px; margin-bottom: 20px; align-items: start; }
+    .mini-grid { grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap: 8px; }
+    .mini-grid .card { padding: 4px; border-radius: 8px; }
+    .mini-grid .card-name { font-size: 9px; margin-top: 4px; line-height: 1.15; }
+    .mini-grid .card-source { font-size: 8px; margin-top: 3px; line-height: 1.1; }
+    .mini-grid .wish-btn { width: 18px; height: 18px; font-size: 11px; top: 2px; right: 2px; }
+    .mini-grid .card.owned::after { width: 18px; height: 18px; line-height: 18px; font-size: 10px; bottom: -4px; right: -4px; }
+
+    .card { background: rgba(255,255,255,0.9); border-radius: 12px; padding: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); cursor: pointer; position: relative; -webkit-tap-highlight-color: transparent; transition: 0.3s; }
+    .img-wrapper { width: 100%; aspect-ratio: 5 / 7; overflow: hidden; border-radius: 8px; background: #eee; position: relative; }
+    .card.album-type .img-wrapper { aspect-ratio: 1 / 1; }
+    .card img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(100%); opacity: 0.5; transition: 0.3s; }
+    
+    .card.owned::after { content: '✓'; position: absolute; bottom: -5px; right: -5px; background: var(--ys-blue-grey); color: white; width: 24px; height: 24px; border-radius: 50%; line-height: 24px; font-size: 14px; font-weight: bold; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.3); z-index: 5; }
+    .card.owned { background: #fff; transform: translateY(-2px); }
+    .card.owned img { filter: grayscale(0%); opacity: 1; }
+    
+    .wish-btn { position: absolute; top: 4px; right: 4px; width: 22px; height: 22px; background: rgba(255,255,255,0.9); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; color: #aaa; z-index: 10; box-shadow: 0 2px 4px rgba(0,0,0,0.15); transition: 0.2s; }
+    .wish-btn::after { content: '\2661\FE0E'; margin-top: 1px; }
+    .card.in-wishlist .wish-btn { color: var(--pink-magic); text-shadow: 0 0 2px rgba(255,133,162,0.4); }
+    .card.in-wishlist .wish-btn::after { content: '\2665\FE0E'; }
+    .wish-btn:active { transform: scale(1.2); }
+
+    .card-name { font-size: 11px; margin-top: 8px; color: #333; line-height: 1.2; text-align: center; font-weight: 600; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .card-source { font-size: 9px; color: #666; margin-top: 5px; text-align: center; font-style: normal; display: none; line-height: 1.25; word-wrap: break-word; }
+    .wish-view .card-source, .owned-view .card-source { display: block; }
+
+    .no-img-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: rgba(44, 68, 94, 0.05); color: var(--ys-deep-blue); font-size: 0.85em; font-weight: 700; text-align: center; padding: 10px; box-sizing: border-box; border: 1px dashed rgba(44, 68, 94, 0.2); line-height: 1.5; }
+    .empty-msg { text-align: center; color: var(--ys-deep-blue); padding: 40px; font-style: italic; font-weight: 800; text-shadow: 0 0 8px rgba(255,255,255,0.9), 0 1px 3px rgba(255,255,255,0.9); }
+    
+    .bottom-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border-top: 1px solid rgba(255,255,255,0.5); padding: 10px 15px 15px 15px; box-sizing: border-box; box-shadow: 0 -4px 20px rgba(0,0,0,0.1); z-index: 999; padding-bottom: calc(15px + env(safe-area-inset-bottom)); pointer-events: none;}
+    .dual-stat-container { display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 800px; margin: 0 auto; } 
+    
+    .stat-row { display: flex; flex-direction: row; align-items: center; gap: 8px; }
+    .stat-label { font-size: 11px; font-weight: 700; color: var(--ys-deep-blue); white-space: nowrap; width: 85px; }
+    .stat-percent { font-size: 11px; font-weight: 700; color: var(--ys-deep-blue); width: 30px; text-align: right; }
+    
+    .staff-container { flex: 1; position: relative; height: 8px; background: rgba(44, 68, 94, 0.1); border-radius: 4px; border: 1px solid rgba(44, 68, 94, 0.15); box-sizing: border-box; }
+    .staff-fill { position: absolute; top: 0; left: 0; height: 100%; width: 0%; border-radius: 4px; transition: width 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); }
+    .fill-album { background: rgba(44, 68, 94, 0.4); }
+    .fill-card { background: rgba(255, 133, 162, 0.45); }
+    
+    .staff-icon { position: absolute; top: 50%; right: 0; transform: translate(50%, -50%) translateZ(0); -webkit-transform: translate(50%, -50%) translateZ(0); font-size: 12px; line-height: 1; text-shadow: 1px 1px 2px rgba(0,0,0,0.2); z-index: 10; }
+
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; }
+    .modal-content { background: var(--glass); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); border: 1px solid rgba(255,255,255,0.6); width: 100%; max-width: 400px; max-height: 80vh; border-radius: 20px; display: flex; flex-direction: column; box-shadow: 0 10px 40px rgba(0,0,0,0.25); overflow: hidden; }
+    .modal-header { padding: 15px; background: rgba(255,255,255,0.6); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.5); font-weight: 700; color: var(--ys-deep-blue); }
+    .close-btn { background: none; border: none; font-size: 1.5rem; line-height: 1; cursor: pointer; color: var(--ys-deep-blue); padding: 0 5px; }
+    .message-list { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 12px; -webkit-overflow-scrolling: touch; }
+    .msg-item { background: rgba(255,255,255,0.85); padding: 12px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
+    .msg-info { font-size: 0.8em; color: #666; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed rgba(0,0,0,0.1); padding-bottom: 4px; }
+    .msg-name { font-weight: 700; color: var(--ys-deep-blue); }
+    .msg-text { font-size: 0.95em; color: #333; line-height: 1.5; word-wrap: break-word; white-space: pre-wrap; font-weight: 500; }
+    .msg-form { padding: 15px; background: rgba(255,255,255,0.7); border-top: 1px solid rgba(255,255,255,0.5); display: flex; flex-direction: column; gap: 10px; }
+    .msg-input { width: 100%; box-sizing: border-box; padding: 10px; border: 1px solid rgba(0,0,0,0.15); border-radius: 8px; background: rgba(255,255,255,0.9); font-family: inherit; font-size: 0.9em; font-weight: 500;}
+    .msg-input:focus { outline: none; border-color: var(--pink-magic); }
+    .msg-textarea { resize: none; height: 60px; }
+    .msg-submit { background: var(--pink-magic); color: white; border: none; border-radius: 8px; padding: 10px; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 0.95em; }
+    .msg-submit:disabled { background: #ccc; cursor: not-allowed; }
+  </style>
+</head>
+<body>
+
+  <div class="bg-layer" id="bgLayer"></div>
+
+  <!-- 登入畫面 -->
+  <div id="loginScreen">
+    <div class="login-box">
+      <div class="login-title">Yesung Collection</div>
+      <div class="bind-badge" id="bindBadge">✅ 偵測到已綁定裝置</div>
+      <input type="text" id="usernameInput" class="login-input" placeholder="帳號">
+      <input type="password" id="passwordInput" class="login-input" placeholder="密碼">
+      <button class="login-btn" onclick="attemptLogin()">登入</button>
+      <div class="loader" id="loginLoader"></div>
+      <div id="loginMsg"></div>
+    </div>
+  </div>
+
+  <!-- 主程式區塊 -->
+  <div id="mainApp">
+    <div class="scroll-wrapper">
+      <header>
+        <div class="header-top">
+          <div class="title-group">
+            <span class="user-badge" id="currentUserBadge">User</span>
+            <h1 class="main-title"><span class="yesung-txt">Yesung</span><span class="album-txt">Album&Card</span></h1>
+            <div class="sub-credits">Threads @sherrykao1314</div>
+          </div>
+          <button class="draw-btn guest-btn" onclick="openModal()" style="pointer-events: auto;">
+            <span class="heart-icon">💬</span>
+            <span class="btn-txt" style="color: var(--ys-deep-blue);">公開留言板</span>
+          </button>
+        </div>
+        
+        <div class="header-bottom">
+          <div class="top-stat-bar" id="topStatCounter">資料庫<br>載入中...</div>
+          <div id="noticeBoard" class="notice-board"></div>
+        </div>
+      </header>
+
+      <div class="app-container">
+        <nav class="tab-nav">
+          <button class="tab-btn active" onclick="switchTab('wish', event)">❤ 想要</button>
+          <button class="tab-btn" onclick="switchTab('owned', event)">✓ 擁有</button>
+          <button class="tab-btn" onclick="switchTab('korea', event)">KOREA</button>
+          <button class="tab-btn" onclick="switchTab('japan', event)">JAPAN</button>
+          <button class="tab-btn" onclick="switchTab('group', event)">大隊專</button>
+          <button class="tab-btn" onclick="switchTab('other_album', event)">其他專</button>
+          <button class="tab-btn" onclick="switchTab('concert', event)">演唱會</button> 
+          <button class="tab-btn" onclick="switchTab('merch', event)">其他/周邊</button>
+          <button class="tab-btn" onclick="switchTab('calendar', event)">年曆</button>
+          <button class="tab-btn" onclick="switchTab('magazine', event)">雜誌</button>
+        </nav>
+        <div class="sub-nav-container" id="subNavContainer"><nav class="sub-nav" id="subNav"></nav></div>
+        <div class="content-area" id="displayArea"><div class="empty-msg">與 Google 連線中...</div></div>
+      </div>
+    </div>
+
+    <div class="bottom-bar">
+      <div class="dual-stat-container">
+        <div class="stat-row">
+          <div class="stat-label" id="albumLabel">💿 專輯 0/0</div>
+          <div class="staff-container">
+            <div class="staff-fill fill-album" id="albumFill">
+              <span class="staff-icon">💿</span>
+            </div>
+          </div>
+          <div class="stat-percent" id="albumPercent">0%</div>
+        </div>
+        <div class="stat-row">
+          <div class="stat-label" id="cardLabel">🎵 小卡 0/0</div>
+          <div class="staff-container">
+            <div class="staff-fill fill-card" id="cardFill">
+              <span class="staff-icon">🎵</span>
+            </div>
+          </div>
+          <div class="stat-percent" id="cardPercent">0%</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="guestbookModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <span>💬 交流留言板</span>
+        <button class="close-btn" onclick="closeModal()">×</button>
+      </div>
+      <div class="message-list" id="messageList">
+        <div style="text-align:center; color:#666; padding:20px; font-weight:bold; font-size:0.9em;">載入留言中...</div>
+      </div>
+      <div class="msg-form">
+        <input type="text" id="msgName" class="msg-input" placeholder="你的暱稱 (選填，預設匿名)" maxlength="20">
+        <textarea id="msgContent" class="msg-input msg-textarea" placeholder="說點什麼吧..." maxlength="200"></textarea>
+        <button class="msg-submit" id="msgSubmitBtn" onclick="sendMessage()">送出留言</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbzFgYBlnqAprAlxhQD4XT6ld0GGMHFOxsMLXEmoa1l_Kf38kcOg45hxReg9FueAVQD9/exec"; 
+
+    const TOKEN_KEY = 'yesung_auth_token';
+    const USERNAME_KEY = 'yesung_saved_username';
+    const STORAGE_KEY = 'yesung_github_pc_list';
+    const WISH_KEY = 'yesung_wish_list'; 
+    
+    let userToken = localStorage.getItem(TOKEN_KEY);
+    let currentUsername = localStorage.getItem(USERNAME_KEY) || "";
+    let myCollection = [];
+    let myWishlist = [];
+    let itemDictionary = {}; 
+    let cardLookup = {}; 
+    let globalMessages = []; 
+    let syncTimeout = null;
+    let allData = { korea: {}, japan: {}, group: {}, other_album: {}, concert: {}, merch: {}, calendar: {}, magazine: {} };
+    let currentTab = 'wish'; 
+
+    window.onload = function() {
+      if (userToken) {
+        document.getElementById('bindBadge').style.display = 'block';
+        document.getElementById('usernameInput').value = currentUsername || "已儲存的帳號";
+        document.getElementById('passwordInput').value = "********";
+        document.getElementById('usernameInput').disabled = true;
+        document.getElementById('passwordInput').disabled = true;
+        document.querySelector('.login-btn').style.display = 'none';
+        document.getElementById('loginLoader').style.display = 'block';
+        
+        const msgEl = document.getElementById('loginMsg');
+        msgEl.innerText = "極速登入中...";
+        msgEl.style.color = "#2e7d32";
+        
+        executeInitLoad(userToken);
+      } else {
+        document.getElementById('loginMsg').innerText = "請輸入帳號密碼登入";
+      }
+    };
+
+    function executeInitLoad(token) {
+      fetch(`${GAS_API_URL}?action=initLoad&token=${encodeURIComponent(token)}&t=${new Date().getTime()}`)
+        .then(res => res.json())
+        .then(res => {
+          if (res.success) {
+            handleLoginSuccess(res);
+          } else {
+            resetLoginUI(res.message || "憑證失效，請重新登入");
+          }
+        })
+        .catch(e => resetLoginUI("網路不穩，請重新整理"));
+    }
+
+    function attemptLogin() {
+      const u = document.getElementById('usernameInput').value.trim();
+      const p = document.getElementById('passwordInput').value.trim();
+      if (!u || !p) {
+        document.getElementById('loginMsg').innerText = "帳號與密碼不能空白";
+        return;
+      }
+      
+      document.getElementById('loginMsg').innerText = "系統驗證中...";
+      document.getElementById('loginMsg').style.color = "#e63946";
+      document.getElementById('loginLoader').style.display = "block";
+      document.querySelector('.login-btn').style.display = "none";
+
+      fetch(`${GAS_API_URL}?action=loginComplete&username=${encodeURIComponent(u)}&password=${encodeURIComponent(p)}&t=${new Date().getTime()}`)
+        .then(res => res.json())
+        .then(res => {
+          if (res.success) {
+            handleLoginSuccess(res);
+          } else {
+            resetLoginUI(res.message || "登入失敗");
+          }
+        })
+        .catch(e => resetLoginUI("網路錯誤，請稍後再試"));
+    }
+
+    // 🏆 核心：無痛轉移機制 + 🎯修正：公告欄顯示方式
+    function handleLoginSuccess(res) {
+      if (res.token) {
+        userToken = res.token;
+        localStorage.setItem(TOKEN_KEY, userToken);
+      }
+      currentUsername = res.username;
+      localStorage.setItem(USERNAME_KEY, currentUsername);
+      document.getElementById('currentUserBadge').innerText = `ID: ${currentUsername}`;
+      
+      // 1. 抓取雲端資料
+      let cloudOwned = [];
+      let cloudWish = [];
+      try {
+        cloudOwned = res.ownedData ? JSON.parse(res.ownedData) : [];
+        cloudWish = res.wishData ? JSON.parse(res.wishData) : [];
+      } catch(e) {}
+
+      // 2. 抓取手機本地舊資料
+      let localOwned = [];
+      let localWish = [];
+      try {
+        localOwned = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+        localWish = JSON.parse(localStorage.getItem(WISH_KEY)) || [];
+      } catch(e) {}
+
+      let needSyncToCloud = false;
+
+      // 3. 邏輯判斷
+      if (cloudOwned.length === 0 && localOwned.length > 0) {
+        myCollection = localOwned;
+        needSyncToCloud = true;
+      } else {
+        myCollection = cloudOwned;
+      }
+
+      if (cloudWish.length === 0 && localWish.length > 0) {
+        myWishlist = localWish;
+        needSyncToCloud = true;
+      } else {
+        myWishlist = cloudWish;
+      }
+
+      // 4. 寫回手機記憶體
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(myCollection));
+      localStorage.setItem(WISH_KEY, JSON.stringify(myWishlist));
+
+      if (needSyncToCloud) {
+        syncDataToCloud();
+      }
+      
+      // 🎯 修正：設定公告欄顯示方式為 flex，確保排版正常
+      if (res.noticeMessage && res.noticeMessage.toString().trim() !== "") {
+        const noticeEl = document.getElementById('noticeBoard');
+        noticeEl.innerHTML = `📢 ${res.noticeMessage.toString().replace(/\n/g, '<br>')}`;
+        noticeEl.style.display = 'flex';
+      } else {
+        document.getElementById('noticeBoard').style.display = 'none';
+      }
+
+      if (res.guestMessages) {
+        globalMessages = res.guestMessages;
+      }
+
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('mainApp').style.display = 'block';
+      processData(res.cards);
+    }
+
+    function resetLoginUI(msg) {
+      localStorage.removeItem(TOKEN_KEY);
+      userToken = null;
+      document.getElementById('bindBadge').style.display = 'none';
+      
+      const uInput = document.getElementById('usernameInput');
+      const pInput = document.getElementById('passwordInput');
+      uInput.disabled = false;
+      pInput.disabled = false;
+      uInput.value = currentUsername || ""; 
+      pInput.value = "";
+      
+      document.getElementById('loginLoader').style.display = "none";
+      document.querySelector('.login-btn').style.display = "block";
+      
+      const msgEl = document.getElementById('loginMsg');
+      msgEl.innerText = msg;
+      msgEl.style.color = "#e63946";
+    }
+
+    function syncDataToCloud() {
+      if(syncTimeout) clearTimeout(syncTimeout);
+      syncTimeout = setTimeout(() => {
+        fetch(GAS_API_URL, {
+          method: 'POST',
+          body: JSON.stringify({
+            action: 'syncData',
+            token: userToken,
+            ownedData: JSON.stringify(myCollection),
+            wishData: JSON.stringify(myWishlist)
+          })
+        }).catch(e => console.log("背景同步失敗"));
+      }, 1500); 
+    }
+
+    function updateCounter() {
+      let totalAlbumsCount = 0;
+      let totalCardsCount = 0;
+      Object.values(itemDictionary).forEach(type => {
+        if (type === '專輯') totalAlbumsCount++;
+        else totalCardsCount++; 
+      });
+
+      document.getElementById('topStatCounter').innerHTML = `圖鑑總收錄<br>${totalAlbumsCount} 張專輯<br>${totalCardsCount} 張小卡`;
+
+      let ownedAlbums = 0;
+      let ownedCards = 0;
+      myCollection.forEach(id => {
+        if (itemDictionary[id] === '專輯') ownedAlbums++;
+        else if (itemDictionary[id]) ownedCards++;
+      });
+      
+      const albumPercent = totalAlbumsCount === 0 ? 0 : Math.round((ownedAlbums / totalAlbumsCount) * 100);
+      const cardPercent = totalCardsCount === 0 ? 0 : Math.round((ownedCards / totalCardsCount) * 100);
+
+      document.getElementById('albumLabel').innerText = `💿 專輯 ${ownedAlbums}/${totalAlbumsCount}`;
+      document.getElementById('albumPercent').innerText = `${albumPercent}%`;
+      document.getElementById('albumFill').style.width = `${albumPercent}%`;
+
+      document.getElementById('cardLabel').innerText = `🎵 小卡 ${ownedCards}/${totalCardsCount}`;
+      document.getElementById('cardPercent').innerText = `${cardPercent}%`;
+      document.getElementById('cardFill').style.width = `${cardPercent}%`;
+    }
+
+    function openModal() {
+      document.getElementById('guestbookModal').style.display = 'flex';
+      renderMessages();
+    }
+
+    function closeModal() {
+      document.getElementById('guestbookModal').style.display = 'none';
+    }
+
+    function renderMessages() {
+      const listEl = document.getElementById('messageList');
+      if (globalMessages.length === 0) {
+        listEl.innerHTML = '<div style="text-align:center; color:#666; padding:20px; font-weight:bold; font-size:0.9em;">還沒有人留言喔，來搶頭香吧！</div>';
+        return;
+      }
+      
+      let html = '';
+      globalMessages.forEach(msg => {
+        html += `
+          <div class="msg-item">
+            <div class="msg-info">
+              <span class="msg-name">${escapeHTML(msg.name)}</span>
+              <span>${msg.time}</span>
+            </div>
+            <div class="msg-text">${escapeHTML(msg.content)}</div>
+          </div>
+        `;
+      });
+      listEl.innerHTML = html;
+    }
+
+    function sendMessage() {
+      const nameInput = document.getElementById('msgName').value.trim();
+      const contentInput = document.getElementById('msgContent').value.trim();
+      
+      if (!contentInput) {
+        alert('請輸入留言內容喔！');
+        return;
+      }
+
+      const btn = document.getElementById('msgSubmitBtn');
+      btn.disabled = true;
+      btn.innerText = '傳送中...';
+
+      const sendData = {
+        name: nameInput || "匿名ELF",
+        content: contentInput
+      };
+
+      fetch(GAS_API_URL, {
+        method: 'POST',
+        body: JSON.stringify(sendData)
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === 'success') {
+          const now = new Date();
+          const timeStr = `${now.getFullYear()}/${String(now.getMonth()+1).padStart(2,'0')}/${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+          
+          globalMessages.unshift({
+            name: sendData.name,
+            content: sendData.content,
+            time: timeStr
+          });
+          
+          document.getElementById('msgContent').value = ''; 
+          renderMessages();
+        } else {
+          alert('傳送失敗，請稍後再試！');
+        }
+      })
+      .catch(err => {
+        alert('網路錯誤，傳送失敗！');
+      })
+      .finally(() => {
+        btn.disabled = false;
+        btn.innerText = '送出留言';
+      });
+    }
+
+    function escapeHTML(str) {
+      return str.replace(/[&<>'"]/g, tag => ({
+          '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+        }[tag]));
+    }
+
+    function processData(cards) {
+      allData = { korea: {}, japan: {}, group: {}, other_album: {}, concert: {}, merch: {}, calendar: {}, magazine: {} };
+      cardLookup = {};
+
+      cards.forEach(card => {
+        const [id, name, imgUrl, countryRaw, release, albumHeader, type] = card;
+        if (!id) return;
+        
+        const itemId = id.toString();
+        const itemType = type ? type.toString().trim() : ''; 
+        itemDictionary[itemId] = itemType === '專輯' ? '專輯' : '小卡'; 
+        
+        const item = { id: itemId, name, imgUrl, type: itemType, release: release || '', header: albumHeader || '', tab: '' };
+        
+        if (countryRaw && release) {
+          let rawCountryStr = countryRaw.toString().trim();
+          let c = rawCountryStr.toLowerCase();
+          let tabDisplayName = rawCountryStr;
+
+          if (c === 'korea' || c === '韓專') { c = 'korea'; tabDisplayName = 'KOREA'; }
+          else if (c === 'japan' || c === '日專') { c = 'japan'; tabDisplayName = 'JAPAN'; }
+          else if (c === '大隊') { c = 'group'; tabDisplayName = '大隊專'; }
+          else if (c === '其他專') { c = 'other_album'; tabDisplayName = '其他專'; }
+          else if (c === '演唱會') { c = 'concert'; tabDisplayName = '演唱會'; } 
+          else if (c === '其他' || c === '周邊') { c = 'merch'; tabDisplayName = '其他/周邊'; }
+          else if (c === '年曆') { c = 'calendar'; tabDisplayName = '年曆'; }
+          else if (c === '雜誌') { c = 'magazine'; tabDisplayName = '雜誌'; }
+          
+          item.tab = tabDisplayName; 
+          cardLookup[itemId] = item; 
+
+          if (!allData[c]) allData[c] = {};
+          if (!allData[c][release]) allData[c][release] = {};
+          
+          const header = albumHeader ? albumHeader.toString().trim() : ""; 
+          if (!allData[c][release][header]) {
+            allData[c][release][header] = { albums: [], photocards: [], specialCards: [], fansignCards: [], randomCards: [], bonusCards: [], wonFansignCards: [], luckyCards: [], entryCards: [], otherCards: [], uncategorized: [] }; 
+          }
+          
+          if (itemType === '專輯') allData[c][release][header].albums.push(item);
+          else if (itemType === '特典卡') allData[c][release][header].specialCards.push(item);
+          else if (itemType === '簽售卡') allData[c][release][header].fansignCards.push(item); 
+          else if (itemType === '隨機') allData[c][release][header].randomCards.push(item);
+          else if (itemType === '滿額') allData[c][release][header].bonusCards.push(item);
+          else if (itemType === '中簽') allData[c][release][header].wonFansignCards.push(item); 
+          else if (itemType === '幸運') allData[c][release][header].luckyCards.push(item); 
+          else if (itemType === '入場') allData[c][release][header].entryCards.push(item);
+          else if (itemType === '其他') allData[c][release][header].otherCards.push(item);
+          else if (itemType === '小卡') allData[c][release][header].photocards.push(item);
+          else allData[c][release][header].uncategorized.push(item);
+        } else {
+          cardLookup[itemId] = item;
+        }
+      });
+      switchTab('wish'); 
+      updateCounter(); 
+    }
+
+    function switchTab(tabId, event) {
+      currentTab = tabId;
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      if(event) event.currentTarget.classList.add('active');
+      else {
+        const btn = document.querySelector(`.tab-btn[onclick*="${tabId}"]`);
+        if(btn) btn.classList.add('active');
+      }
+      
+      const subNavContainer = document.getElementById('subNavContainer');
+      const subNav = document.getElementById('subNav');
+      const area = document.getElementById('displayArea');
+      subNav.innerHTML = '';
+      area.innerHTML = '';
+      
+      area.classList.remove('wish-view', 'owned-view');
+
+      if (tabId === 'wish') {
+        area.classList.add('wish-view');
+        subNavContainer.style.display = 'none'; 
+        renderWishlist();
+        return;
+      }
+      
+      if (tabId === 'owned') {
+        area.classList.add('owned-view');
+        subNavContainer.style.display = 'none'; 
+        renderOwnedList();
+        return;
+      }
+
+      subNavContainer.style.display = 'block'; 
+      let releases = Object.keys(allData[tabId] || {});
+      
+      if (tabId === 'calendar') {
+        releases.sort((a, b) => b.localeCompare(a, undefined, { numeric: true }));
+      }
+
+      if (releases.length === 0) {
+        area.innerHTML = '<div class="empty-msg">此分類尚無資料</div>';
+        return;
+      }
+      releases.forEach((rel, idx) => {
+        const btn = document.createElement('button');
+        btn.className = `sub-btn ${idx === 0 ? 'active' : ''}`;
+        btn.innerText = rel;
+        btn.onclick = (e) => switchRelease(rel, e, tabId);
+        subNav.appendChild(btn);
+      });
+      switchRelease(releases[0], null, tabId);
+    }
+
+    function renderWishlist() {
+      const area = document.getElementById('displayArea');
+      if (myWishlist.length === 0) {
+        area.innerHTML = '<div class="empty-msg">清單空空的，快去點擊愛心標記想要的卡片吧！</div>';
+        return;
+      }
+      area.insertAdjacentHTML('beforeend', `<div class="section-title">❤ 我的想要清單 (${myWishlist.length})</div>`);
+      const g = document.createElement('div'); g.className = 'grid';
+      myWishlist.forEach(id => {
+        if (cardLookup[id]) g.appendChild(createCard(cardLookup[id]));
+      });
+      area.appendChild(g);
+    }
+
+    function renderOwnedList() {
+      const area = document.getElementById('displayArea');
+      if (myCollection.length === 0) {
+        area.innerHTML = '<div class="empty-msg">目前還沒有收集到卡片喔，快去圖鑑打勾吧！</div>';
+        return;
+      }
+      area.insertAdjacentHTML('beforeend', `<div class="section-title">✓ 我的擁有清單 (${myCollection.length})</div>`);
+      const g = document.createElement('div'); 
+      g.className = 'grid mini-grid'; 
+      myCollection.forEach(id => {
+        if (cardLookup[id]) g.appendChild(createCard(cardLookup[id]));
+      });
+      area.appendChild(g);
+    }
+
+    function switchRelease(release, event, country) {
+      if(event) {
+        document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
+        event.currentTarget.classList.add('active');
+      }
+      const area = document.getElementById('displayArea');
+      area.innerHTML = ''; 
+      const releaseData = allData[country || currentTab][release];
+      if(!releaseData) return;
+      
+      Object.keys(releaseData).forEach(header => {
+        const data = releaseData[header];
+        if (header !== "") {
+          const headerDiv = document.createElement('div');
+          headerDiv.className = 'album-header'; headerDiv.innerText = header;
+          area.appendChild(headerDiv);
+        }
+        const renderGrid = (title, list) => {
+          if (list && list.length > 0) {
+            if (title) area.insertAdjacentHTML('beforeend', `<div class="section-title">${title}</div>`);
+            const g = document.createElement('div'); g.className = 'grid';
+            list.forEach(item => g.appendChild(createCard(item)));
+            area.appendChild(g);
+          }
+        };
+        renderGrid(null, data.uncategorized);
+        renderGrid("💿 專輯版本", data.albums);
+        renderGrid("🃏 專輯小卡", data.photocards);
+        renderGrid("🎁 特典小卡", data.specialCards);
+        renderGrid("✍️ 簽售小卡", data.fansignCards);
+        renderGrid("🎉 中簽卡", data.wonFansignCards);
+        renderGrid("🍀 幸運卡", data.luckyCards);
+        renderGrid("🎟️ 入場卡", data.entryCards); 
+        renderGrid("🎲 隨機卡", data.randomCards);
+        renderGrid("🛍️ 滿額卡", data.bonusCards);
+        renderGrid("📌 其他小卡", data.otherCards);
+      });
+    }
+
+    function createCard(item) {
+      const itemId = item.id;
+      const isOwned = myCollection.includes(itemId);
+      const isWish = myWishlist.includes(itemId);
+      const isAlbum = item.type === '專輯';
+      
+      const div = document.createElement('div');
+      div.className = `card ${isOwned ? 'owned' : ''} ${isWish ? 'in-wishlist' : ''} ${isAlbum ? 'album-type' : ''}`;
+      
+      let imgHtml = item.imgUrl ? `<img src="${item.imgUrl}" onerror="this.src='https://via.placeholder.com/150x210?text=Error'" loading="lazy">` : `<div class="no-img-placeholder">歡迎提供<br>卡面</div>`;
+      
+      let sourceText = "";
+      if (item.tab) sourceText += `[${item.tab}] `;
+      if (item.release) sourceText += item.release;
+      if (item.header) sourceText += ` / ${item.header}`;
+      
+      div.innerHTML = `
+        <div class="wish-btn"></div>
+        <div class="img-wrapper">${imgHtml}</div>
+        <div class="card-name">${item.name || ''}</div>
+        <div class="card-source">${sourceText}</div>
+      `;
+
+      div.querySelector('.wish-btn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (myWishlist.includes(itemId)) {
+          myWishlist = myWishlist.filter(i => i !== itemId);
+          div.classList.remove('in-wishlist');
+        } else {
+          myWishlist.push(itemId);
+          div.classList.add('in-wishlist');
+        }
+        localStorage.setItem(WISH_KEY, JSON.stringify(myWishlist));
+        syncDataToCloud(); 
+        if (currentTab === 'wish') switchTab('wish'); 
+      });
+
+      div.addEventListener('click', () => {
+        div.classList.toggle('owned');
+        if (myCollection.includes(itemId)) {
+          myCollection = myCollection.filter(i => i !== itemId);
+        } else {
+          myCollection.push(itemId);
+        }
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(myCollection));
+        updateCounter();
+        syncDataToCloud(); 
+        if (currentTab === 'owned') switchTab('owned');
+      });
+
+      return div;
+    }
+  </script>
+</body>
+</html>
